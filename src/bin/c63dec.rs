@@ -3,7 +3,7 @@ use clap::{arg, command, value_parser};
 
 #[derive(Debug)]
 struct DecoderOptions {    
-    input_file:std::path::PathBuf,
+    input_file: std::path::PathBuf,
     output_file: std::path::PathBuf,
 }
 

@@ -1,7 +1,6 @@
-/* NOTE! The huffman tables are not adjusted for the frequencies that are
-   common when using inter-prediction. This results in a much larger file size
-   than what is to be expected compared to MJPEG. 
-*/
+// NOTE! The huffman tables are not adjusted for the frequencies that are
+// common when using inter-prediction. This results in a much larger file size
+// than what is to be expected compared to MJPEG. 
 
 // Original C source aligned this to 16 bits ( uint8_t yquanttbl_def[64] __attribute__((aligned(16))) )
 pub const YQUANTTBL_DEF: [u8; 64] = [
