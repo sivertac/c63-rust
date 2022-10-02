@@ -1,8 +1,10 @@
 
 use clap::{arg, command, value_parser};
 
+use c63_rust::c63;
+
 #[derive(Debug)]
-struct EncoderOptions {    
+struct EncoderOptions {
     image_height: u64,
     image_width: u64,
     frames: Option<u64>, // number of frames to encode
@@ -33,4 +35,5 @@ fn main() {
         encoder_options
     );
 
+    println!("{}", c63::PI)
 }
