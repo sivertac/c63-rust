@@ -28,7 +28,14 @@ pub struct EncodeContext {
 }
 
 impl EncodeContext {
-    fn new(width: i32, height: i32) -> EncodeContext {
+    fn new(width: i32, height: i32) -> Result<EncodeContext, &'static str> {
+        if width <= 0 {
+            return Err("Invalid width, width must be positive nonzero integer");
+        }
+        if height <= 0 {
+            return Err("Invalid height, height must be positive nonzero integer");
+        }
+
         // compute padding (or something like that idk...)
         let ypw: i32 = (width as f32 / 16.0f32).ceil() as i32 * 16;
         let yph: i32 = (height as f32 / 16.0f32).ceil() as i32 * 16;
@@ -49,7 +56,7 @@ impl EncodeContext {
             quanttbl[c63::COLOR_COMPONENT_V][i] = tables::UVQUANTTBL_DEF[i] / (qp as f64 / 10f64) as u8;
         }
         
-        return EncodeContext { 
+        return Ok(EncodeContext { 
             width: width,
             height: height, 
             ypw: ypw, 
@@ -68,7 +75,7 @@ impl EncodeContext {
             keyframe_interval: keyframe_interval, 
             
             quanttbl: quanttbl
-        }
+        })
     }
 }
 
