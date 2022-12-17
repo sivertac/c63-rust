@@ -1,7 +1,6 @@
-
-//pub const ISQRT2: f64 = 0.70710678118654; 
-//pub const PI: f64 = 3.14159265358979;     
-pub const ILOG2: f64 = 1.442695040888963;    // 1/log(2); 
+//pub const ISQRT2: f64 = 0.70710678118654;
+//pub const PI: f64 = 3.14159265358979;
+pub const ILOG2: f64 = 1.442695040888963; // 1/log(2);
 pub const ISQRT2: f64 = 1f64 / std::f64::consts::SQRT_2;
 pub const PI: f64 = std::f64::consts::PI;
 //pub const ILOG2: f64 = 1f64 / 2f64.log2(); // idk why this can't be compile time :|
@@ -20,9 +19,9 @@ pub const COMPONENT_SIZE_VX: u8 = 1;
 pub const COMPONENT_SIZE_VY: u8 = 1;
 
 /* The JPEG file format defines several parts and each part is defined by a
- marker. A file always starts with 0xFF and is then followed by a magic number,
- e.g., like 0xD8 in the SOI marker below. Some markers have a payload, and if
- so, the size of the payload is written before the payload itself. */
+marker. A file always starts with 0xFF and is then followed by a magic number,
+e.g., like 0xD8 in the SOI marker below. Some markers have a payload, and if
+so, the size of the payload is written before the payload itself. */
 pub enum JPEGMarker {
     DEF = 0xFF,
     SOI = 0xD8,
@@ -36,34 +35,41 @@ pub enum JPEGMarker {
 pub const HUFF_AC_ZERO: u8 = 16;
 pub const HUFF_AC_SIZE: u8 = 11;
 
-#[derive(Default)]
 pub struct YUV {
     pub y: Vec<u8>,
     pub u: Vec<u8>,
-    pub v: Vec<u8>
+    pub v: Vec<u8>,
+}
+
+impl YUV {
+    pub fn new(y_size: usize, u_size: usize, v_size: usize) -> YUV {
+        return YUV {
+            y: vec![0; y_size],
+            u: vec![0; u_size],
+            v: vec![0; v_size],
+        };
+    }
 }
 
 pub struct DCT {
-    y_dct: Box<[i16]>,
-    u_dct: Box<[i16]>,
-    v_dct: Box<[i16]>
+    pub y_dct: Vec<i16>,
+    pub u_dct: Vec<i16>,
+    pub v_dct: Vec<i16>,
 }
 
 pub struct MacroBlock {
     use_mv: i32,
     mv_x: i8,
-    mv_y: i8
+    mv_y: i8,
 }
 
 pub struct Frame {
-    orig: Box<YUV>,                         // Original input image
-    recons: Box<YUV>,                       // Reconstructed image
-    predicted: Box<YUV>,                    // Predicted frame from intra-prediction
+    orig: Box<YUV>,      // Original input image
+    recons: Box<YUV>,    // Reconstructed image
+    predicted: Box<YUV>, // Predicted frame from intra-prediction
 
-    residuals: Box<DCT>,                    // Difference between original image and predicted frame
+    residuals: Box<DCT>, // Difference between original image and predicted frame
 
-    mbs: [MacroBlock; COLOR_COMPONENTS],    // macroblocks
-    keyframe: i32
+    mbs: [MacroBlock; COLOR_COMPONENTS], // macroblocks
+    keyframe: i32,
 }
-
-
