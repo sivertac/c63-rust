@@ -1,7 +1,7 @@
 
 use clap::{arg, command, value_parser};
 
-use c63_rust::c63;
+use c63_rust::{c63, yuv, encode_context};
 
 #[derive(Debug)]
 struct EncoderOptions {
@@ -35,5 +35,16 @@ fn main() {
         encoder_options
     );
 
-    println!("{}", c63::PI)
+    let ctx = encode_context::EncodeContext::new(encoder_options.image_width as i32, encoder_options.image_height as i32).unwrap();
+
+    let output_file = std::fs::File::create(encoder_options.output_file).unwrap();
+    let mut input_file = std::fs::File::open(encoder_options.input_file).unwrap();
+
+    let mut num_frames = 0;
+
+    let image = yuv::read_yuv(&mut input_file, &ctx).unwrap();
+
+    println!("{:#?}", image);
+
+
 }

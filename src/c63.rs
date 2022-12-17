@@ -36,10 +36,12 @@ pub enum JPEGMarker {
 pub const HUFF_AC_ZERO: u8 = 16;
 pub const HUFF_AC_SIZE: u8 = 11;
 
+#[derive(Debug)]
+#[derive(Default)]
 pub struct YUV {
-    y: Box<[u8]>,
-    u: Box<[u8]>,
-    v: Box<[u8]>
+    pub y: Vec<u8>,
+    pub u: Vec<u8>,
+    pub v: Vec<u8>
 }
 
 pub struct DCT {

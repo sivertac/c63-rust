@@ -3,32 +3,32 @@ use crate::c63;
 use crate::tables;
 
 pub struct EncodeContext {
-    width: i32,
-    height: i32,
+    pub width: i32,
+    pub height: i32,
     
-    ypw: i32, 
-    yph: i32, 
-    upw: i32, 
-    uph: i32, 
-    vpw: i32, 
-    vph: i32,
+    pub ypw: i32, 
+    pub yph: i32, 
+    pub upw: i32, 
+    pub uph: i32, 
+    pub vpw: i32, 
+    pub vph: i32,
 
-    padw: [i32; c63::COLOR_COMPONENTS],
-    padh: [i32; c63::COLOR_COMPONENTS],
+    pub padw: [i32; c63::COLOR_COMPONENTS],
+    pub padh: [i32; c63::COLOR_COMPONENTS],
 
-    mb_cols: i32,
-    mb_rows: i32,
+    pub mb_cols: i32,
+    pub mb_rows: i32,
 
-    qp: u8, // Quality parameter
+    pub qp: u8, // Quality parameter
 
-    me_search_range: i32,
-    keyframe_interval: i32,
+    pub me_search_range: i32,
+    pub keyframe_interval: i32,
 
-    quanttbl: [[u8; 64]; c63::COLOR_COMPONENTS],
+    pub quanttbl: [[u8; 64]; c63::COLOR_COMPONENTS],
 }
 
 impl EncodeContext {
-    fn new(width: i32, height: i32) -> Result<EncodeContext, &'static str> {
+    pub fn new(width: i32, height: i32) -> Result<EncodeContext, &'static str> {
         if width <= 0 {
             return Err("Invalid width, width must be positive nonzero integer");
         }
