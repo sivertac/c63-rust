@@ -5,9 +5,10 @@ pub const ISQRT2: f64 = 1f64 / std::f64::consts::SQRT_2;
 pub const PI: f64 = std::f64::consts::PI;
 //pub const ILOG2: f64 = 1f64 / 2f64.log2(); // idk why this can't be compile time :|
 
-pub const COLOR_COMPONENT_Y: usize = 0;
-pub const COLOR_COMPONENT_U: usize = 1;
-pub const COLOR_COMPONENT_V: usize = 2;
+pub type ColorComponent = usize;
+pub const COLOR_COMPONENT_Y: ColorComponent = 0;
+pub const COLOR_COMPONENT_U: ColorComponent = 1;
+pub const COLOR_COMPONENT_V: ColorComponent = 2;
 
 pub const COLOR_COMPONENTS: usize = 3; //std::mem::variant_count::<ColorComponent>();
 
@@ -57,19 +58,70 @@ pub struct DCT {
     pub v_dct: Vec<i16>,
 }
 
-pub struct MacroBlock {
-    use_mv: i32,
-    mv_x: i8,
-    mv_y: i8,
+impl DCT {
+    pub fn new(y_size: usize, u_size: usize, v_size: usize) -> DCT {
+        return DCT {
+            y_dct: vec![0; y_size],
+            u_dct: vec![0; u_size],
+            v_dct: vec![0; v_size],
+        };
+    }
 }
 
+#[derive(Default, Clone)]
+pub struct MacroBlock {
+    pub use_mv: bool,
+    pub mv_x: i8,
+    pub mv_y: i8,
+}
+
+pub type MacroBlockContainer = [Vec<MacroBlock>; COLOR_COMPONENTS];
+
 pub struct Frame {
-    orig: Box<YUV>,      // Original input image
-    recons: Box<YUV>,    // Reconstructed image
-    predicted: Box<YUV>, // Predicted frame from intra-prediction
+    pub orig: YUV,      // Original input image
+    pub recons: YUV,    // Reconstructed image
+    pub predicted: YUV, // Predicted frame from intra-prediction
 
-    residuals: Box<DCT>, // Difference between original image and predicted frame
+    pub residuals: DCT, // Difference between original image and predicted frame
 
-    mbs: [MacroBlock; COLOR_COMPONENTS], // macroblocks
-    keyframe: i32,
+    pub mbs: MacroBlockContainer, // macroblocks
+    pub keyframe: bool,
+}
+
+pub type PaddingContainer = [i32; COLOR_COMPONENTS];
+
+impl Frame {
+    pub fn new(
+        orig: YUV,
+        padw: &PaddingContainer,
+        padh: &PaddingContainer,
+        mb_cols: i32,
+        mb_rows: i32,
+        keyframe: bool,
+    ) -> Frame {
+        return Frame {
+            orig: orig,
+            recons: YUV::new(
+                (padw[COLOR_COMPONENT_Y] * padh[COLOR_COMPONENT_Y]) as usize,
+                (padw[COLOR_COMPONENT_U] * padh[COLOR_COMPONENT_U]) as usize,
+                (padw[COLOR_COMPONENT_V] * padh[COLOR_COMPONENT_V]) as usize,
+            ),
+            predicted: YUV::new(
+                (padw[COLOR_COMPONENT_Y] * padh[COLOR_COMPONENT_Y]) as usize,
+                (padw[COLOR_COMPONENT_U] * padh[COLOR_COMPONENT_U]) as usize,
+                (padw[COLOR_COMPONENT_V] * padh[COLOR_COMPONENT_V]) as usize,
+            ),
+            residuals: DCT::new(
+                (padw[COLOR_COMPONENT_Y] * padh[COLOR_COMPONENT_Y]) as usize,
+                (padw[COLOR_COMPONENT_U] * padh[COLOR_COMPONENT_U]) as usize,
+                (padw[COLOR_COMPONENT_V] * padh[COLOR_COMPONENT_V]) as usize,
+            ),
+            mbs: [
+                vec![MacroBlock::default(); (mb_rows * mb_cols) as usize],
+                vec![MacroBlock::default(); (mb_rows * mb_cols) as usize],
+                vec![MacroBlock::default(); (mb_rows * mb_cols) as usize],
+            ],
+            keyframe: keyframe,
+        };
+    }
 }

@@ -12,8 +12,8 @@ pub struct EncodeContext {
     pub vpw: i32,
     pub vph: i32,
 
-    pub padw: [i32; c63::COLOR_COMPONENTS],
-    pub padh: [i32; c63::COLOR_COMPONENTS],
+    pub padw: c63::PaddingContainer,
+    pub padh: c63::PaddingContainer,
 
     pub mb_cols: i32,
     pub mb_rows: i32,
@@ -21,9 +21,16 @@ pub struct EncodeContext {
     pub qp: u8, // Quality parameter
 
     pub me_search_range: i32,
-    pub keyframe_interval: i32,
 
     pub quanttbl: [[u8; 64]; c63::COLOR_COMPONENTS],
+
+    pub reference_frame: Option<Box<c63::Frame>>,
+    pub current_frame: Option<Box<c63::Frame>>,
+
+    pub framenum: i32,
+
+    pub keyframe_interval: i32,
+    pub frames_since_keyframe: i32,
 }
 
 impl EncodeContext {
@@ -86,13 +93,38 @@ impl EncodeContext {
             // Quality parameters
             qp: qp,
             me_search_range: me_search_range,
-            keyframe_interval: keyframe_interval,
 
             quanttbl: quanttbl,
+
+            reference_frame: None,
+            current_frame: None,
+
+            framenum: 0,
+
+            keyframe_interval: keyframe_interval,
+            frames_since_keyframe: 0,
         });
     }
 }
 
-fn create_frame(padw: [i32; c63::COLOR_COMPONENTS], padh: [i32; c63::COLOR_COMPONENTS]) {}
+pub fn encode_image(ctx: &mut EncodeContext, image: c63::YUV) {
+    ctx.reference_frame = ctx.current_frame.take();
 
-pub fn encode_image(ctx: &EncodeContext, image: c63::YUV) {}
+    // check if this is a keyframe
+    let mut keyframe: bool = false;
+    if ctx.framenum == 0 || ctx.frames_since_keyframe == ctx.keyframe_interval {
+        keyframe = true;
+        ctx.frames_since_keyframe = 0;
+    }
+    ctx.current_frame = Some(Box::new(c63::Frame::new(
+        image,
+        &ctx.padw,
+        &ctx.padh,
+        ctx.mb_cols,
+        ctx.mb_rows,
+        keyframe,
+    )));
+    let current_frame = ctx.current_frame.as_ref().unwrap();
+
+    if !current_frame.keyframe {}
+}
