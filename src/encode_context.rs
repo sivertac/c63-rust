@@ -142,7 +142,14 @@ pub fn encode_image(ctx: &mut EncodeContext, image: c63::YUV) {
         );
 
         /* Motion Compensation */
-        //c63_motion_compensate(cm);
+        me::c63_motion_compensate(
+            current_frame,
+            reference_frame,
+            ctx.mb_rows,
+            ctx.mb_cols,
+            &ctx.padw,
+            &ctx.padh,
+        )
     }
 
     ctx.framenum += 1;

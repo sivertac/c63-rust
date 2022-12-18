@@ -122,3 +122,86 @@ pub fn c63_motion_estimate(
         }
     }
 }
+
+fn mc_block_8x8(
+    macroblocks: &c63::MacroBlockContainer, // current frame
+    mb_x: i32,
+    mb_y: i32,
+    predicted: &mut [u8],
+    reference: &[u8],
+    color_component: c63::ColorComponent,
+    padw: &c63::PaddingContainer,
+    padh: &c63::PaddingContainer,
+) {
+    let mb = &macroblocks[color_component][(mb_y * padw[color_component] / 8 + mb_x) as usize];
+
+    if !mb.use_mv {
+        return;
+    }
+
+    let left = mb_x * 8;
+    let top = mb_y * 8;
+    let right = left + 8;
+    let bottom = top + 8;
+
+    let w = padw[color_component];
+
+    /* Copy block from ref mandated by MV */
+    for y in top..bottom {
+        for x in left..right {
+            predicted[(y * w + x) as usize] =
+                reference[((y + mb.mv_y as i32) * w + (x + mb.mv_x as i32)) as usize];
+        }
+    }
+}
+
+pub fn c63_motion_compensate(
+    current_frame: &mut c63::Frame,
+    reference_frame: &c63::Frame,
+    mb_rows: i32,
+    mb_cols: i32,
+    padw: &c63::PaddingContainer,
+    padh: &c63::PaddingContainer,
+) {
+    /* Luma */
+    for mb_y in 0..mb_rows {
+        for mb_x in 0..mb_cols {
+            mc_block_8x8(
+                &current_frame.mbs,
+                mb_x,
+                mb_y,
+                &mut current_frame.predicted.y,
+                &reference_frame.recons.y,
+                c63::COLOR_COMPONENT_Y,
+                padw,
+                padh,
+            );
+        }
+    }
+
+    /* Chroma */
+    for mb_y in 0..mb_rows / 2 {
+        for mb_x in 0..mb_cols / 2 {
+            mc_block_8x8(
+                &current_frame.mbs,
+                mb_x,
+                mb_y,
+                &mut current_frame.predicted.u,
+                &reference_frame.recons.u,
+                c63::COLOR_COMPONENT_U,
+                padw,
+                padh,
+            );
+            mc_block_8x8(
+                &current_frame.mbs,
+                mb_x,
+                mb_y,
+                &mut current_frame.predicted.v,
+                &reference_frame.recons.v,
+                c63::COLOR_COMPONENT_V,
+                padw,
+                padh,
+            );
+        }
+    }
+}
