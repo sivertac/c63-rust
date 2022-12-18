@@ -56,7 +56,7 @@ fn main() {
 
     println!("options: {:#?}", encoder_options);
 
-    let ctx = encode_context::EncodeContext::new(
+    let mut ctx = encode_context::EncodeContext::new(
         encoder_options.image_width as i32,
         encoder_options.image_height as i32,
     )
@@ -79,6 +79,7 @@ fn main() {
         };
 
         // encode image
+        encode_context::encode_image(&mut ctx, image);
 
         num_frames += 1;
         // if frame limit is set and num_frames is over limit then break

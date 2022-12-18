@@ -51,13 +51,7 @@ fn me_block_8x8(
 
     for y in top..bottom {
         for x in left..right {
-            let block1_offset = (my * w + mx) as usize;
-            let block2_offset = (y * w + x) as usize;
-            let sad = dsp::sad_block_8x8(
-                &original[block1_offset..block1_offset + 64],
-                &reference[block2_offset..block2_offset + 64],
-                w,
-            );
+            let sad = dsp::sad_block_8x8(&original, &reference, w);
 
             if sad < best_sad {
                 mb.mv_x = (x - mx) as i8;

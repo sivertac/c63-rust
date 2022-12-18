@@ -1,4 +1,5 @@
 use crate::c63;
+use crate::me;
 use crate::tables;
 
 pub struct EncodeContext {
@@ -124,7 +125,26 @@ pub fn encode_image(ctx: &mut EncodeContext, image: c63::YUV) {
         ctx.mb_rows,
         keyframe,
     )));
-    let current_frame = ctx.current_frame.as_ref().unwrap();
+    let current_frame = ctx.current_frame.as_mut().unwrap();
 
-    if !current_frame.keyframe {}
+    if !current_frame.keyframe {
+        let reference_frame = ctx.reference_frame.as_ref().unwrap();
+
+        /* Motion Estimation */
+        me::c63_motion_estimate(
+            current_frame,
+            reference_frame,
+            ctx.mb_rows,
+            ctx.mb_cols,
+            &ctx.padw,
+            &ctx.padh,
+            ctx.me_search_range,
+        );
+
+        /* Motion Compensation */
+        //c63_motion_compensate(cm);
+    }
+
+    ctx.framenum += 1;
+    ctx.frames_since_keyframe += 1;
 }
