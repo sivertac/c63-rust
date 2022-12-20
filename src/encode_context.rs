@@ -1,5 +1,6 @@
 use crate::c63;
 use crate::me;
+use crate::quant;
 use crate::tables;
 
 pub struct EncodeContext {
@@ -151,6 +152,18 @@ pub fn encode_image(ctx: &mut EncodeContext, image: c63::YUV) {
             &ctx.padh,
         )
     }
+
+    /* DCT and Quantization */
+    quant::dct_quantize(
+        &current_frame.orig.y,
+        &current_frame.predicted.y,
+        ctx.padw[c63::COLOR_COMPONENT_Y],
+        ctx.padh[c63::COLOR_COMPONENT_Y],
+        &mut current_frame.residuals.y_dct,
+        &ctx.quanttbl[c63::COLOR_COMPONENT_Y],
+    );
+
+    /* Reconstruct frame for inter-prediction */
 
     ctx.framenum += 1;
     ctx.frames_since_keyframe += 1;
