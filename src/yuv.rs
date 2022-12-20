@@ -1,6 +1,7 @@
 use crate::c63;
 use crate::encode_context;
 
+use std::io::Write;
 use std::io::{self, Read};
 
 fn read_file_to_buf(
@@ -19,6 +20,7 @@ fn read_file_to_buf(
     return Ok(len);
 }
 
+/// read 1 image from file
 pub fn read_yuv(
     file: &mut std::fs::File,
     ctx: &encode_context::EncodeContext,
@@ -60,4 +62,18 @@ pub fn read_yuv(
     }
 
     return Ok(image);
+}
+
+/// dump 1 image to file in yuv format
+pub fn dump_image(
+    image: &c63::YUV,
+    width: i32,
+    height: i32,
+    file: &mut std::fs::File,
+) -> Result<(), io::Error> {
+    file.write_all(&image.y[..(width * height) as usize])?;
+    file.write_all(&image.u[..(width * height / 4) as usize])?;
+    file.write_all(&image.v[..(width * height / 4) as usize])?;
+
+    return Ok(());
 }

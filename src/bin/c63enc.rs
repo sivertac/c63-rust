@@ -62,7 +62,7 @@ fn main() {
     )
     .unwrap();
 
-    //let output_file = std::fs::File::create(encoder_options.output_file).unwrap();
+    let mut output_file = std::fs::File::create(encoder_options.output_file).unwrap();
     let mut input_file = std::fs::File::open(encoder_options.input_file).unwrap();
 
     let mut num_frames = 0;
@@ -80,6 +80,14 @@ fn main() {
 
         // encode image
         encode_context::encode_image(&mut ctx, image);
+
+        yuv::dump_image(
+            &ctx.current_frame.as_ref().unwrap().predicted,
+            ctx.width,
+            ctx.height,
+            &mut output_file,
+        )
+        .unwrap();
 
         num_frames += 1;
         // if frame limit is set and num_frames is over limit then break

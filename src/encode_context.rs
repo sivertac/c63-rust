@@ -2,6 +2,7 @@ use crate::c63;
 use crate::me;
 use crate::quant;
 use crate::tables;
+use crate::yuv::dump_image;
 
 pub struct EncodeContext {
     pub width: i32,
@@ -163,7 +164,51 @@ pub fn encode_image(ctx: &mut EncodeContext, image: c63::YUV) {
         &ctx.quanttbl[c63::COLOR_COMPONENT_Y],
     );
 
+    quant::dct_quantize(
+        &current_frame.orig.u,
+        &current_frame.predicted.u,
+        ctx.padw[c63::COLOR_COMPONENT_U],
+        ctx.padh[c63::COLOR_COMPONENT_U],
+        &mut current_frame.residuals.u_dct,
+        &ctx.quanttbl[c63::COLOR_COMPONENT_U],
+    );
+
+    quant::dct_quantize(
+        &current_frame.orig.v,
+        &current_frame.predicted.v,
+        ctx.padw[c63::COLOR_COMPONENT_V],
+        ctx.padh[c63::COLOR_COMPONENT_V],
+        &mut current_frame.residuals.v_dct,
+        &ctx.quanttbl[c63::COLOR_COMPONENT_V],
+    );
+
     /* Reconstruct frame for inter-prediction */
+    quant::dequantize_idct(
+        &current_frame.residuals.y_dct,
+        &current_frame.predicted.y,
+        ctx.padw[c63::COLOR_COMPONENT_Y],
+        ctx.padh[c63::COLOR_COMPONENT_Y],
+        &mut current_frame.recons.y,
+        &ctx.quanttbl[c63::COLOR_COMPONENT_Y],
+    );
+
+    quant::dequantize_idct(
+        &current_frame.residuals.u_dct,
+        &current_frame.predicted.u,
+        ctx.padw[c63::COLOR_COMPONENT_U],
+        ctx.padh[c63::COLOR_COMPONENT_U],
+        &mut current_frame.recons.u,
+        &ctx.quanttbl[c63::COLOR_COMPONENT_U],
+    );
+
+    quant::dequantize_idct(
+        &current_frame.residuals.u_dct,
+        &current_frame.predicted.u,
+        ctx.padw[c63::COLOR_COMPONENT_U],
+        ctx.padh[c63::COLOR_COMPONENT_U],
+        &mut current_frame.recons.u,
+        &ctx.quanttbl[c63::COLOR_COMPONENT_U],
+    );
 
     ctx.framenum += 1;
     ctx.frames_since_keyframe += 1;
